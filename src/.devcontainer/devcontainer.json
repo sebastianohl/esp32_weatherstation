@@ -3,7 +3,7 @@
 {
 	"name": "PlatformIO",
 	"build": {
-		"dockerfile": "Dockerfile",
+		"dockerfile": "Dockerfile"
 	},
 	// Set *default* container specific settings.json values on container create.
 	"settings": {
@@ -18,6 +18,8 @@
 		"xaver.clang-format",
         "ms-vscode.cpptools",
         "platformio.platformio-ide",
+		"rust-lang.rust-analyzer",
+		"fill-labs.dependi"
 	],
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
@@ -39,5 +41,5 @@
 	//"remoteUser": "vscode",
 	//	"remoteEnv": {
 	//	},
-	"userEnvProbe": "loginShell",
+	"userEnvProbe": "loginShell"
 }

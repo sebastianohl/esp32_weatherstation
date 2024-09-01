@@ -1,0 +1,59 @@
+{
+  "name": "weatherstation",
+  // Select between image and build propieties to pull or build the image.
+  // "image": "docker.io/espressif/idf-rust:esp32s3_latest",
+  "build": {
+    "dockerfile": "Dockerfile",
+    "args": {
+      "CONTAINER_USER": "esp",
+      "CONTAINER_GROUP": "esp",
+      "ESP_BOARD": "esp32s3"
+    }
+  },
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "editor.formatOnPaste": true,
+        "editor.formatOnSave": true,
+        "editor.formatOnSaveMode": "file",
+        "editor.formatOnType": true,
+        "lldb.executable": "/usr/bin/lldb",
+        "files.watcherExclude": {
+          "**/target/**": true
+        },
+        "rust-analyzer.checkOnSave.command": "clippy",
+        "rust-analyzer.checkOnSave.allTargets": false,
+        "[rust]": {
+          "editor.defaultFormatter": "rust-lang.rust-analyzer"
+        }
+      },
+      "extensions": [
+        "rust-lang.rust-analyzer",
+        "tamasfe.even-better-toml",
+        "serayuzgur.crates",
+        "mutantdino.resourcemonitor",
+        "yzhang.markdown-all-in-one",
+        "ms-vscode.cpptools",
+        "actboy168.tasks",
+        "Wokwi.wokwi-vscode"
+      ]
+    }
+  },
+  "mounts": [
+    "source=/dev,target=/dev,type=bind"
+  ],
+  "forwardPorts": [
+    3333,
+    8000
+  ],
+  "runArgs": [
+    "--group-add=dialout",
+    "--tty=true",
+    "--privileged=true",
+    "--net=host",
+    "--env=DISPLAY=${env:DISPLAY}",
+    "--volume=/tmp/.X11-unix:/tmp/.X11-unix"
+  ],
+  "workspaceMount": "source=${localWorkspaceFolder},target=/home/esp/weatherstation,type=bind,consistency=cached",
+  "workspaceFolder": "/home/esp/weatherstation"
+}

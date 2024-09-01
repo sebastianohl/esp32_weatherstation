@@ -1,6 +1,5 @@
 FROM mcr.microsoft.com/vscode/devcontainers/base:noble
 ENV DEBIAN_FRONTEND=noninteractive
-#        clang-format-14 \
 
 RUN apt-get update && apt-get install -y --no-install-recommends\
         mc \

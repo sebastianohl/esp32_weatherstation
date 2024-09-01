@@ -5,9 +5,11 @@ set -e
 BUILD_MODE=""
 case "$1" in
 "" | "release")
+    bash scripts/build.sh
     BUILD_MODE="release"
     ;;
 "debug")
+    bash scripts/build.sh debug
     BUILD_MODE="debug"
     ;;
 *)
@@ -16,4 +18,4 @@ case "$1" in
     ;;
 esac
 
-espflash flash --chip esp32s3 -p /dev/ttyUSB1 --list-all-ports target/xtensa-esp32s3-espidf/${BUILD_MODE}/weatherstation 
+espflash flash --chip esp32s3 -B 921600 -p /dev/ttyUSB0 --list-all-ports target/xtensa-esp32s3-espidf/${BUILD_MODE}/weatherstation 

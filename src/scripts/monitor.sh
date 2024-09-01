@@ -3,4 +3,4 @@
 set -e
 
 
-espflash monitor -p /dev/ttyUSB1 --list-all-ports 
+espflash monitor -p /dev/ttyUSB0 --list-all-ports 

@@ -1,5 +1,4 @@
 use esp_idf_hal::delay::FreeRtos;
-use esp_idf_hal::delay::BLOCK;
 use esp_idf_hal::gpio::AnyIOPin;
 use esp_idf_hal::i2c::{I2c, I2cConfig, I2cDriver};
 use esp_idf_hal::peripheral::Peripheral;
@@ -7,7 +6,8 @@ use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
 use esp_idf_hal::units::Hertz;
 
-const SLAVE_ADDR: u8 = 0x76;
+use bme680::*;
+use core::time::Duration;
 
 fn i2c_master_init<'d>(
     i2c: impl Peripheral<P = impl I2c> + 'd,
@@ -30,34 +30,66 @@ fn main() {
 
     log::info!("Hello!!!!!");
 
-    //let p = ;
     let peripherals = match Peripherals::take() {
         Ok(p) => p,
         Err(e) => panic!("error getting peripherals {e:?}"),
     };
 
-    let mut i2c_master = match i2c_master_init(
+    let i2c_master = match i2c_master_init::<'_>(
         peripherals.i2c0,
         peripherals.pins.gpio6.into(),
         peripherals.pins.gpio5.into(),
-        1000.kHz().into(),
+        100.kHz().into(),
     ) {
         Ok(i2c) => i2c,
         Err(e) => panic!("error i2c init {e:?}"),
     };
 
-    let tx_buf: [u8; 1] = [0xe0];
-    let _ = i2c_master.write(SLAVE_ADDR, &tx_buf, BLOCK);
-    FreeRtos::delay_ms(5);
-    loop {
-        let tx_buf: [u8; 1] = [0xd0];
-        let _ = i2c_master.write(SLAVE_ADDR, &tx_buf, BLOCK);
-        let mut rx_buf: [u8; 1] = [0];
-        match i2c_master.read(SLAVE_ADDR, &mut rx_buf, BLOCK) {
-            Ok(_) => println!("Master receives {:?}", rx_buf),
-            Err(e) => println!("Error: {:?}", e),
+    {
+        let mut delayer = FreeRtos;
+        let mut dev = match Bme680::init(i2c_master, &mut delayer, I2CAddress::Primary) {
+            Err(e) => panic!("error i2c init {e:?}"),
+            Ok(bme) => bme,
+        };
+
+        let settings = SettingsBuilder::new()
+            .with_humidity_oversampling(OversamplingSetting::OS2x)
+            .with_pressure_oversampling(OversamplingSetting::OS4x)
+            .with_temperature_oversampling(OversamplingSetting::OS8x)
+            .with_temperature_filter(IIRFilterSize::Size3)
+            .with_gas_measurement(Duration::from_millis(1500), 320, 25)
+            .with_temperature_offset(-2.2)
+            .with_run_gas(true)
+            .build();
+
+        if let Err(e) = dev.set_sensor_settings(&mut delayer, settings) {
+            panic!("Error: {:?}", e)
         }
 
-        FreeRtos::delay_ms(1000);
+        if let Err(e) = dev.set_sensor_mode(&mut delayer, PowerMode::ForcedMode) {
+            panic!("Error: {:?}", e)
+        }
+
+        loop {
+            FreeRtos::delay_ms(1000);
+            let power_mode = dev.get_sensor_mode();
+            println!("Sensor power mode: {:?}", power_mode);
+            println!("Setting forced power modes");
+
+            if let Err(e) = dev.set_sensor_mode(&mut delayer, PowerMode::ForcedMode) {
+                panic!("Error: {:?}", e)
+            }
+
+            println!("Retrieving sensor data");
+            let (data, _state) = match dev.get_sensor_data(&mut delayer) {
+                Err(e) => panic!("Error: {:?}", e),
+                Ok(data) => data,
+            };
+            println!("Sensor Data {:?}", data);
+            println!("Temperature {}°C", data.temperature_celsius());
+            println!("Pressure {}hPa", data.pressure_hpa());
+            println!("Humidity {}%", data.humidity_percent());
+            println!("Gas Resistence {}Ω", data.gas_resistance_ohm());
+        }
     }
 }

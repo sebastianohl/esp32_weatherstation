@@ -42,9 +42,10 @@ as7331-rs = { version = "0.1.2" }
 as7343-rs = { version = "0.1.0" }
 
 [patch.crates-io]
-#as7331-rs = { git = 'https://github.com/sebastianohl/as7331-rs.git' }
-as7331-rs = { path = 'as7331-rs' }
-as7343-rs = { path = 'as7343-rs' }
+as7331-rs = { git = 'https://github.com/sebastianohl/as7331-rs.git' }
+#as7331-rs = { path = 'as7331-rs' }
+as7343-rs = { git = 'https://github.com/sebastianohl/as7343-rs.git' }
+#as7343-rs = { path = 'as7343-rs' }
 
 [build-dependencies]
 embuild = "0.32.0"

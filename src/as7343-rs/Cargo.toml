@@ -1,0 +1,13 @@
+[package]
+name = "as7343-rs"
+version = "0.1.0"
+authors = ["sebastian@ohl.name"]
+edition = "2021"
+description = "as7343 driver in Rust for embedded devices"
+license = "MIT OR Apache-2.0"
+repository = "https://github.com/sebastianohl/as7343-rs"
+rust-version = "1.77"
+
+[dependencies]
+log = { version = "0.4", default-features = false }
+esp-idf-hal = { version = "0.44.1", default-features = false }

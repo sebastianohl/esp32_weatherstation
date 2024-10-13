@@ -11,6 +11,7 @@ use core::matches;
 use core::time::Duration;
 
 use as7331_rs::*;
+use as7343_rs::*;
 
 fn i2c_master_init<'d>(
     i2c: impl Peripheral<P = impl I2c> + 'd,
@@ -49,20 +50,203 @@ fn main() {
     };
 
     if true {
+        let mut as7343_sensor = As7343::new(i2c_master, as7343::AS7343_I2CADDR_DEFAULT);
+        let _ = as7343_sensor.begin();
+        let _ = as7343_sensor.set_atime(100);
+        let _ = as7343_sensor.set_astep(999);
+        let _ = as7343_sensor.set_gain(as7343::AS7343_GAIN_128X);
+        let _ = as7343_sensor.enable_led(false, as7343::AS7343_LED_STENGTH_4MA);
+
+        log::info!("looping");
+        loop {
+            let _ = as7343_sensor.clear_digital_saturation_status();
+            let _ = as7343_sensor.clear_analog_saturation_status();
+            match as7343_sensor.read_all_channels() {
+                Err(e) => panic!("error read all channels {e:?}"),
+                Ok(channels) => {
+                    log::info!(
+                        "F1 405nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_405_F1],
+                            5749,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F2 425nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_425_F2],
+                            1756,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+
+                    log::info!(
+                        "FZ 450nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_450_FZ],
+                            2169,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F3 475nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_475_F3],
+                            770,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F4 515nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_515_F4],
+                            3141,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F5 550nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_550_F5],
+                            1574,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "FY 555nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_555_FY],
+                            3747,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "FXL 600nm : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_600_FXL],
+                            4776,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F6 640nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_640_F6],
+                            3336,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F7 690nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_690_F7],
+                            5435,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "F8 745nm  : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_745_F8],
+                            864,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "NIR 855nm : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_855_NIR],
+                            10581,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "Clear     : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_CLEAR],
+                            4311,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_64,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "Clear 0   : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_CLEAR_0],
+                            999,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "Clear 1   : {:?}",
+                        as7343_sensor.raw_to_uwm2(
+                            channels[as7343::AS7343_CHANNEL_CLEAR_1],
+                            999,
+                            27.8,
+                            as7331::AS7331_CREG1_GAIN_1024,
+                            155.0
+                        )
+                    );
+                    log::info!(
+                        "Digital saturation : {}",
+                        match as7343_sensor.get_digital_saturation() {
+                            Err(e) => panic!("error get digital saturation {e:?}"),
+                            Ok(b) => b,
+                        }
+                    );
+                    log::info!(
+                        "Analog saturation  : {}",
+                        match as7343_sensor.get_analog_saturation() {
+                            Err(e) => panic!("error get digital saturation {e:?}"),
+                            Ok(b) => b,
+                        }
+                    );
+                }
+            }
+            FreeRtos::delay_ms(1);
+        }
+    }
+
+    /*
+    if false {
         let lsb_a = 304.69 / ((1 << (11 - 8)) as f32) / ((1 << 9) as f32 / 1024.0) / 1000.0;
         let lsb_b = 398.44 / ((1 << (11 - 8)) as f32) / ((1 << 9) as f32 / 1024.0) / 1000.0;
         let lsb_c = 191.41 / ((1 << (11 - 8)) as f32) / ((1 << 9) as f32 / 1024.0) / 1000.0;
-        let mut as7331_sensor = As7331::new(i2c_master, 0x74);
+        let mut as7331_sensor = As7331::new(i2c_master, as7331::AS7331_I2CADDR_DEFAULT);
 
-        log::info!("1");
         let _ = as7331_sensor.power_up();
-        log::info!("2");
         let _ = as7331_sensor.reset();
-        log::info!("3");
 
         FreeRtos::delay_ms(100);
         let chip_id = as7331_sensor.get_chip_id().unwrap();
-        log::info!("4");
 
         if chip_id == 0x21 {
             log::info!("state {:?}", as7331_sensor.get_mode());
@@ -107,7 +291,9 @@ fn main() {
             FreeRtos::delay_ms(1);
         }
     }
+    */
 
+    /*
     if false {
         let mut delayer = FreeRtos;
         let mut dev = match Bme680::init(i2c_master, &mut delayer, I2CAddress::Primary) {
@@ -155,4 +341,5 @@ fn main() {
             println!("Gas Resistence {}Ω", data.gas_resistance_ohm());
         }
     }
+    */
 }

@@ -39,10 +39,12 @@ anyhow = "1"
 esp-idf-sys = { version = "0.35", default-features = false }
 bme680 = { version = "0.6.0" }
 as7331-rs = { version = "0.1.2" }
+as7343-rs = { version = "0.1.0" }
 
 [patch.crates-io]
 #as7331-rs = { git = 'https://github.com/sebastianohl/as7331-rs.git' }
 as7331-rs = { path = 'as7331-rs' }
+as7343-rs = { path = 'as7343-rs' }
 
 [build-dependencies]
 embuild = "0.32.0"

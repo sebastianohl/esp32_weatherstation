@@ -1,10 +1,17 @@
+mod anemometer;
+
 use esp_idf_hal::delay::FreeRtos;
 use esp_idf_hal::gpio::AnyIOPin;
+use esp_idf_hal::gpio::{InterruptType, PinDriver, Pull};
 use esp_idf_hal::i2c::{I2c, I2cConfig, I2cDriver};
 use esp_idf_hal::peripheral::Peripheral;
 use esp_idf_hal::peripherals::Peripherals;
 use esp_idf_hal::prelude::*;
 use esp_idf_hal::units::Hertz;
+
+use anemometer::Anemometer;
+use esp_idf_hal::timer::config::Config;
+use esp_idf_hal::timer::TimerDriver;
 
 use core::cell::RefCell;
 use embedded_hal_bus::i2c;
@@ -241,7 +248,7 @@ where
     log::info!("Values: {values:?}");
 }
 
-fn main() {
+fn main() -> anyhow::Result<()> {
     // It is necessary to call this function once. Otherwise some patches to the runtime
     // implemented by esp-idf-sys might not link properly. See https://github.com/esp-rs/esp-idf-template/issues/71
     esp_idf_svc::sys::link_patches();
@@ -251,20 +258,26 @@ fn main() {
 
     log::info!("Hello!!!!!");
 
-    let peripherals = match Peripherals::take() {
-        Ok(p) => p,
-        Err(e) => panic!("error getting peripherals {e:?}"),
-    };
+    let peripherals = Peripherals::take()?;
 
-    let i2c_master = match i2c_master_init::<'_>(
+    let mut anemometer = Anemometer::new(
+        PinDriver::input(peripherals.pins.gpio9)?,
+        TimerDriver::new(peripherals.timer00, &Config::new())?,
+    )?;
+
+    loop {
+        //FreeRtos::delay_ms(1000);
+        anemometer.wait_for_event()?;
+        log::info!("got edge, freq {} hz", anemometer.get_frequency());
+    }
+
+    /*
+    let i2c_master = i2c_master_init::<'_>(
         peripherals.i2c0,
         peripherals.pins.gpio6.into(),
         peripherals.pins.gpio5.into(),
         100.kHz().into(),
-    ) {
-        Ok(i2c) => i2c,
-        Err(e) => panic!("error i2c init {e:?}"),
-    };
+    )?;
     let i2c_ref_cell = RefCell::new(i2c_master);
 
     let mut as7343_sensor = As7343::new(
@@ -318,12 +331,14 @@ fn main() {
         20,
     )
     .unwrap();
-    FreeRtos::delay_ms(1000);
 
+    FreeRtos::delay_ms(1000);
     loop {
         FreeRtos::delay_ms(1000);
+
         read_bme680(&mut bme);
         read_as7341(&mut as7343_sensor);
         read_as7331(&mut as7331_sensor);
     }
+    */
 }
